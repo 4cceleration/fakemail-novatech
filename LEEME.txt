@@ -1,0 +1,21 @@
+FAKEMAIL · COMUNICADO NOVATECH
+===============================
+
+Abre primero:
+index.html
+
+Flujo:
+1. Escribe el nombre y pulsa Continuar.
+2. Fakemail muestra la bandeja con varios correos de prueba.
+3. A los 5 segundos llega un nuevo correo de NovaTech con aviso sonoro y visual.
+4. Al abrir cualquier correo, la lista desaparece y el mensaje ocupa el ancho disponible.
+5. El botón de regreso vuelve a Recibidos.
+
+Archivo del correo:
+Novatech_Email_Clientes.html
+
+Antes de enviar:
+- Reemplazar atencion@novatech.com.co por el buzón oficial.
+- Configurar los enlaces de privacidad y preferencias.
+- Validar con Comercial y Jurídica la vigencia de los compromisos expresados.
+- Probar el envío en Gmail, Outlook, Apple Mail y vista móvil.

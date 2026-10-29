@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fakemail · Comunicado NovaTech</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #616161;
+      --line: #e1e1e1;
+      --line-soft: #eeeeee;
+      --canvas: #ffffff;
+      --white: #ffffff;
+      --black: #111111;
+      --yellow: #ffd43b;
+      --yellow-soft: #fff3b3;
+      --shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 28px rgba(0,0,0,.07);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    button, input, a { font: inherit; }
+    button { color: inherit; }
+    [hidden] { display: none !important; }
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+    .lucide {
+      width: 20px;
+      height: 20px;
+      flex: none;
+      stroke-width: 1.8;
+    }
+    .icon-button .lucide { width: 20px; height: 20px; }
+    .nav-icon { display: grid; place-items: center; color: #3f3f3f; }
+    .nav-icon .lucide { width: 20px; height: 20px; }
+    .label-dot { width: 9px; height: 9px; flex: none; border-radius: 50%; background: currentColor; }
+    .mail-row .star { display: grid; place-items: center; }
+    .mail-row .star .lucide { width: 17px; height: 17px; stroke-width: 1.6; }
+    .reply-button .lucide { width: 17px; height: 17px; }
+    .toast-icon .lucide { width: 20px; height: 20px; }
+
+    /* Entrada */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      overflow: auto;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(17,17,17,.035), transparent 38%),
+        #ffffff;
+    }
+    .login-shell { width: min(400px, 100%); text-align: center; }
+    .login-brand {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: #111111;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+    }
+    .login-brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: var(--black);
+      color: #ffffff;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+    .login-card {
+      padding: 34px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 24px 65px rgba(17,17,17,.08);
+      text-align: left;
+    }
+    .login-field-label {
+      display: block;
+      margin: 0 0 8px;
+      color: #3f3f3f;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .6px;
+    }
+    .login-input {
+      width: 100%;
+      height: 54px;
+      padding: 0 15px;
+      border: 1px solid #d2d2d2;
+      border-radius: 10px;
+      outline: 0;
+      background: #fff;
+      color: #111111;
+      font-size: 16px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .login-input:focus { border-color: #111111; box-shadow: 0 0 0 3px rgba(17,17,17,.12); }
+    .login-submit {
+      width: 100%;
+      height: 50px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--black);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .login-submit:hover { background: #2b2b2b; }
+    .login-note { margin: 14px 4px 0; color: #777777; font-size: 11px; line-height: 17px; text-align: center; }
+
+    /* Aplicación */
+    .mail-app { height: 100vh; display: grid; grid-template-rows: 68px minmax(0,1fr); }
+    .appbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px 0 16px;
+      background: var(--canvas);
+    }
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      flex: none;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #444444;
+      cursor: pointer;
+    }
+    .icon-button:hover { background: #f2f2f2; }
+    .menu-icon { width: 19px; height: 14px; display: grid; gap: 3px; }
+    .menu-icon i { height: 2px; background: currentColor; border-radius: 3px; }
+    .brand { width: 164px; display: flex; align-items: center; gap: 10px; flex: none; }
+    .brand-symbol {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--black);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 900;
+    }
+    .brand-name { color: #606060; font-size: 22px; font-weight: 500; letter-spacing: -.7px; }
+    .search {
+      flex: 1;
+      max-width: 760px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      border-radius: 12px;
+      background: #f2f2f2;
+      color: #4d4d4d;
+    }
+    .search:focus-within { background: #fff; box-shadow: var(--shadow); }
+    .search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 15px; }
+    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 5px; }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      margin-left: 8px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--black);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .shell { min-height: 0; display: grid; grid-template-columns: 236px minmax(0,1fr); padding: 0 12px 12px; }
+    .sidebar { min-height: 0; padding: 4px 10px 12px 2px; overflow: auto; }
+    .compose {
+      height: 56px;
+      display: inline-flex;
+      align-items: center;
+      gap: 13px;
+      margin: 0 0 20px;
+      padding: 0 23px 0 18px;
+      border: 0;
+      border-radius: 16px;
+      background: var(--black);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(60,64,67,.16);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .plus { font-size: 24px; font-weight: 400; line-height: 1; }
+    .nav-group { padding-right: 4px; }
+    .nav-row {
+      width: 100%;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 14px 0 22px;
+      border: 0;
+      border-radius: 0 18px 18px 0;
+      background: transparent;
+      color: #303030;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .nav-row:hover { background: #f5f5f5; }
+    .nav-row.active { background: #ededed; color: #111111; font-weight: 800; }
+    .nav-row .count { margin-left: auto; font-size: 12px; }
+    .nav-label { margin: 24px 14px 9px 22px; font-size: 12px; font-weight: 700; color: #424242; }
+    .storage { margin: 26px 20px 6px 22px; color: var(--muted); font-size: 12px; line-height: 18px; }
+    .storage-bar { width: 170px; height: 4px; margin-top: 8px; border-radius: 3px; overflow: hidden; background: #e6e6e6; }
+    .storage-bar span { display: block; width: 36%; height: 100%; background: var(--black); }
+    .main { min-width: 0; min-height: 0; padding-left: 0; }
+
+    /* Bandeja ancha */
+    .inbox-view, .reader-view {
+      height: 100%;
+      min-height: 0;
+      border: 1px solid #e2e2e2;
+      border-radius: 16px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .inbox-view { display: flex; flex-direction: column; }
+    .list-toolbar, .reader-toolbar {
+      height: 50px;
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .list-toolbar .spacer, .reader-toolbar .spacer { flex: 1; }
+    .inbox-tabs {
+      height: 50px;
+      flex: none;
+      display: grid;
+      grid-template-columns: repeat(3,minmax(0,1fr));
+      border-bottom: 1px solid var(--line);
+      color: #444444;
+      font-size: 13px;
+    }
+    .inbox-tab { display: flex; align-items: center; gap: 12px; padding: 0 26px; }
+    .inbox-tab.active { color: #111111; font-weight: 900; border-bottom: 3px solid #111111; }
+    .mail-scroll { min-height: 0; overflow: auto; }
+    .mail-row {
+      width: 100%;
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 18px 18px minmax(120px,.7fr) minmax(260px,2fr) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 22px;
+      border: 0;
+      border-bottom: 1px solid var(--line-soft);
+      background: #fff;
+      color: #424242;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .mail-row:hover { background: #fafafa; }
+    .mail-row.unread { color: #111; font-weight: 800; }
+    .mail-row .snippet, .mail-row .sender { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mail-row .snippet { color: #606060; font-weight: 400; }
+    .mail-row .date { color: #606060; font-size: 11px; font-weight: 700; }
+    .mail-row .star { color: #c4c7c5; text-align: center; font-size: 17px; }
+    .mail-row.unread .star { color: #111111; }
+    .status-dot { width: 7px; height: 7px; margin-left: 4px; border-radius: 50%; background: var(--black); }
+    .mail-row.read .status-dot { visibility: hidden; }
+    .mail-row.is-new { animation: newMail 650ms ease both; }
+    @keyframes newMail {
+      from { opacity: 0; transform: translateY(-10px); background: #f7f7f7; }
+      to { opacity: 1; transform: translateY(0); background: #fff; }
+    }
+
+    /* Mensaje completo, sin lista lateral */
+    .reader-view { display: flex; flex-direction: column; }
+    .reader-toolbar { height: 42px; padding: 0 10px; }
+    .reader-toolbar .icon-button { width: 34px; height: 34px; }
+    .reader-toolbar .text-action { min-height: 30px; height: 30px; padding: 0 11px; font-size: 11px; border-color: #e1e1e1; }
+    .reader-toolbar .divider { height: 18px; margin: 0 5px; }
+    .reader-subject {
+      flex: none;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 24px 11px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .subject-line { margin: 0; font-size: 20px; line-height: 27px; font-weight: 600; letter-spacing: -.25px; color: #202124; }
+    .subject-tags { display: flex; align-items: center; justify-content: flex-end; gap: 7px; margin-top: 0; white-space: nowrap; }
+    .subject-tag { padding: 1px 7px; border-radius: 4px; background: #efefef; color: #111111; font-size: 11px; font-weight: 700; }
+    .sender-card { flex: none; display: flex; align-items: center; gap: 11px; padding: 10px 24px 8px; }
+    .sender-avatar { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #ffd43b; color: #111111; font-size: 12px; font-weight: 800; }
+    .sender-meta { min-width: 0; flex: 1; font-size: 13px; line-height: 19px; }
+    .sender-meta strong { font-size: 14px; color: #202124; }
+    .sender-meta .address, .sender-meta .to { color: #606060; }
+    .sender-date { color: #606060; font-size: 12px; white-space: nowrap; }
+    .message-frame-wrap { flex: 1; min-height: 0; padding: 0 14px; }
+    #emailPreview { display: block; width: 100%; height: 100%; border: 0; background: #ffffff; }
+    .generic-message { flex: 1; min-height: 0; overflow: auto; padding: 18px 14px 40px; }
+    .generic-card { width: min(780px, calc(100% - 30px)); margin: 0 auto; padding: 34px 38px; border: 1px solid #e5e5e5; border-radius: 14px; background: #fff; color: #333333; }
+    .generic-card h2 { margin: 0 0 20px; font-family: Georgia,serif; font-size: 30px; font-weight: 400; color: #111111; }
+    .generic-card p { margin: 0 0 16px; font-size: 15px; line-height: 25px; }
+    .reply-bar { flex: none; display: flex; gap: 10px; padding: 14px 36px 18px; }
+    .reply-button {
+      min-width: 106px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid #dadce0;
+      border-radius: 20px;
+      background: #fff;
+      color: #333333;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .reply-button:hover { background: #f5f5f5; }
+    .text-action {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid #ddd8ca;
+      border-radius: 17px;
+      background: #fff;
+      color: #333333;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .text-action:hover { background: #f5f5f5; }
+    .reader-toolbar .divider { width: 1px; height: 22px; margin: 0 7px; background: #dadce0; }
+
+    /* Aviso emergente */
+    .mail-toast {
+      position: fixed;
+      z-index: 30;
+      right: 24px;
+      bottom: 24px;
+      width: min(390px, calc(100vw - 28px));
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 14px 15px;
+      border: 1px solid #e5e5e5;
+      border-radius: 15px;
+      background: #fff;
+      box-shadow: 0 16px 44px rgba(32,33,36,.20);
+      animation: toastIn .28s ease both;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .toast-icon { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 10px; background: var(--black); color: #fff; }
+    .toast-copy { min-width: 0; flex: 1; }
+    .toast-copy strong { display: block; margin-bottom: 2px; color: #111111; font-size: 13px; }
+    .toast-copy span { display: block; overflow: hidden; color: #666666; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+    .toast-open { border: 0; background: transparent; color: #111111; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer; }
+
+    @media (max-width: 1120px) {
+      .shell { grid-template-columns: 76px minmax(0,1fr); }
+      .sidebar { padding-right: 8px; }
+      .compose { width: 52px; height: 52px; padding: 0; justify-content: center; }
+      .compose span:last-child, .nav-row span:not(.nav-icon), .nav-row .count, .nav-label, .storage { display: none; }
+      .nav-row { justify-content: center; padding: 0; border-radius: 18px; }
+    }
+    @media (max-width: 900px) {
+      .login-screen { align-items: start; padding: max(24px, 8vh) 18px 24px; }
+      .login-card { padding: 32px 24px 28px; }
+      .brand { width: auto; }
+      .brand-name { display: none; }
+    }
+    @media (max-width: 760px) {
+      .mail-app { grid-template-rows: 60px minmax(0,1fr); }
+      .appbar { gap: 7px; padding: 0 10px; }
+      .search { height: 42px; }
+      .shell { grid-template-columns: 1fr; padding: 0 7px 7px; }
+      .sidebar { display: none; }
+      .main { grid-column: 1; }
+      .inbox-view, .reader-view { border-radius: 12px; }
+      .inbox-tabs { height: 46px; }
+      .inbox-tab { justify-content: center; padding: 0 8px; }
+      .mail-row { grid-template-columns: 12px 18px minmax(86px,1fr) auto; min-height: 56px; padding: 0 12px; }
+      .mail-row .snippet { grid-column: 3 / -1; margin-top: -14px; }
+      .reader-subject { display: block; padding: 12px 16px 11px; }
+      .subject-line { font-size: 18px; line-height: 24px; }
+      .subject-tags { justify-content: flex-start; margin-top: 7px; white-space: normal; }
+      .sender-card { padding: 9px 16px 7px; }
+      .sender-date { display: none; }
+      .message-frame-wrap, .generic-message { padding-left: 5px; padding-right: 5px; }
+      .reader-toolbar { height: 40px; padding: 0 5px; }
+      .reader-toolbar .icon-button { width: 32px; height: 32px; }
+      .reader-toolbar .text-action { display: none; }
+      .reply-bar { padding: 10px 15px 14px; }
+      .reply-button { min-width: 0; flex: 1; }
+      .mail-toast { right: 14px; bottom: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <section class="login-screen" id="loginScreen" aria-labelledby="loginTitle">
+    <div class="login-shell">
+      <div class="login-brand"><span class="login-brand-mark">F</span>FAKEMAIL</div>
+      <form class="login-card" id="nameForm" aria-label="Acceso a Fakemail">
+        <h1 class="sr-only" id="loginTitle">Nombre</h1>
+        <label class="login-field-label" for="clientName">NOMBRE</label>
+        <input class="login-input" id="clientName" name="name" type="text" autocomplete="name" maxlength="40" placeholder="Escribe tu nombre" required>
+        <button class="login-submit" type="submit">Continuar</button>
+        <p class="login-note">El nombre se guarda solo en este navegador.</p>
+      </form>
+    </div>
+  </section>
+
+  <div class="mail-app" id="mailApp" hidden>
+    <header class="appbar">
+      <button class="icon-button" aria-label="Menú principal"><i data-lucide="menu" aria-hidden="true"></i></button>
+      <div class="brand" aria-label="Fakemail">
+        <span class="brand-symbol" aria-hidden="true">F</span>
+        <span class="brand-name">Fakemail</span>
+      </div>
+      <label class="search">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 1 0 4.05 11.58L19.37 20.4l1.03-1.03-5.82-5.82A6.5 6.5 0 0 0 9.5 3Zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z"/></svg>
+        <input aria-label="Buscar correos" placeholder="Buscar correos">
+      </label>
+      <div class="top-actions">
+        <button class="avatar" id="avatarButton" type="button" title="Cambiar nombre" aria-label="Cambiar nombre">NN</button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <aside class="sidebar" aria-label="Navegación de Fakemail">
+        <button class="compose"><i data-lucide="plus" aria-hidden="true"></i><span>Redactar</span></button>
+        <nav class="nav-group">
+          <button class="nav-row active"><span class="nav-icon"><i data-lucide="inbox" aria-hidden="true"></i></span><span>Recibidos</span><span class="count" id="inboxCount">2</span></button>
+          <button class="nav-row"><span class="nav-icon"><i data-lucide="star" aria-hidden="true"></i></span><span>Destacados</span></button>
+          <button class="nav-row"><span class="nav-icon"><i data-lucide="clock-3" aria-hidden="true"></i></span><span>Pospuestos</span></button>
+          <button class="nav-row"><span class="nav-icon"><i data-lucide="send" aria-hidden="true"></i></span><span>Enviados</span></button>
+          <button class="nav-row"><span class="nav-icon"><i data-lucide="file-text" aria-hidden="true"></i></span><span>Borradores</span><span class="count">2</span></button>
+          <button class="nav-row"><span class="nav-icon"><i data-lucide="chevron-down" aria-hidden="true"></i></span><span>Más</span></button>
+        </nav>
+        <div class="nav-label">Etiquetas</div>
+        <nav class="nav-group">
+          <button class="nav-row"><span class="nav-icon" style="color:#d4a900"><span class="label-dot"></span></span><span>NovaTech</span></button>
+          <button class="nav-row"><span class="nav-icon" style="color:#111111"><span class="label-dot"></span></span><span>Cuenta</span></button>
+          <button class="nav-row"><span class="nav-icon" style="color:#111111"><span class="label-dot"></span></span><span>Operación</span></button>
+        </nav>
+        <div class="storage">3.6 GB de 15 GB usados<div class="storage-bar"><span></span></div></div>
+      </aside>
+
+      <main class="main">
+        <section class="inbox-view" id="inboxView" aria-label="Bandeja de entrada">
+          <div class="list-toolbar">
+            <button class="icon-button" aria-label="Seleccionar"><i data-lucide="square" aria-hidden="true"></i></button>
+            <button class="icon-button" aria-label="Actualizar"><i data-lucide="rotate-cw" aria-hidden="true"></i></button>
+            <button class="icon-button" aria-label="Más opciones"><i data-lucide="ellipsis-vertical" aria-hidden="true"></i></button>
+            <span class="spacer"></span>
+            <span style="font-size:12px;color:#606060">1–5 de 24</span>
+          </div>
+          <div class="inbox-tabs" role="tablist" aria-label="Categorías">
+            <div class="inbox-tab active" role="tab" aria-selected="true">Principal</div>
+            <div class="inbox-tab" role="tab" aria-selected="false">Promociones</div>
+            <div class="inbox-tab" role="tab" aria-selected="false">Social</div>
+          </div>
+          <div class="mail-scroll" id="mailList">
+            <button class="mail-row unread is-new" id="novatechMailRow" data-message="novatech" type="button" hidden>
+              <span class="status-dot"></span><span class="star" aria-hidden="true"><i data-lucide="star" aria-hidden="true"></i></span><span class="sender">NovaTech</span><span class="snippet">Seguimos trabajando para ti: así cuidaremos tu servicio.</span><span class="date">Ahora</span>
+            </button>
+            <button class="mail-row unread" data-message="logistics" type="button">
+              <span class="status-dot"></span><span class="star" aria-hidden="true"><i data-lucide="star" aria-hidden="true"></i></span><span class="sender">Logística</span><span class="snippet">Tu pedido NT-2481 está listo para despacho</span><span class="date">8:18</span>
+            </button>
+            <button class="mail-row read" data-message="support" type="button">
+              <span class="status-dot"></span><span class="star" aria-hidden="true"><i data-lucide="star" aria-hidden="true"></i></span><span class="sender">Soporte</span><span class="snippet">Actualización de horarios de atención</span><span class="date">Ayer</span>
+            </button>
+            <button class="mail-row read" data-message="billing" type="button">
+              <span class="status-dot"></span><span class="star" aria-hidden="true"><i data-lucide="star" aria-hidden="true"></i></span><span class="sender">Facturación</span><span class="snippet">Factura electrónica disponible para consulta</span><span class="date">26 oct</span>
+            </button>
+            <button class="mail-row read" data-message="account" type="button">
+              <span class="status-dot"></span><span class="star" aria-hidden="true"><i data-lucide="star" aria-hidden="true"></i></span><span class="sender">Relación con Clientes</span><span class="snippet">Invitación: sesión de acompañamiento</span><span class="date">24 oct</span>
+            </button>
+            <button class="mail-row read" data-message="guide" type="button">
+              <span class="status-dot"></span><span class="star" aria-hidden="true"><i data-lucide="star" aria-hidden="true"></i></span><span class="sender">Fakemail</span><span class="snippet">Guía rápida para administrar tu cuenta</span><span class="date">19 oct</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="reader-view" id="readerView" aria-label="Mensaje abierto" hidden>
+          <div class="reader-toolbar">
+            <button class="icon-button" id="backToInbox" aria-label="Volver a Recibidos"><i data-lucide="arrow-left" aria-hidden="true"></i></button>
+            <button class="icon-button" aria-label="Archivar"><i data-lucide="archive" aria-hidden="true"></i></button>
+            <button class="icon-button" aria-label="Eliminar"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+            <button class="icon-button" aria-label="Marcar como no leído"><i data-lucide="mail" aria-hidden="true"></i></button>
+            <span class="divider"></span>
+            <a class="text-action" href="Novatech_Email_Clientes.html" target="_blank" rel="noopener">Abrir HTML</a>
+            <span class="spacer"></span>
+            <button class="icon-button" aria-label="Más opciones"><i data-lucide="ellipsis-vertical" aria-hidden="true"></i></button>
+          </div>
+          <div class="reader-subject">
+            <h1 class="subject-line" id="readerSubject">Seguimos trabajando para ti: así cuidaremos tu servicio.</h1>
+            <div class="subject-tags"><span class="subject-tag" id="readerTag">Recibidos</span><span id="readerKicker" style="font-size:12px;color:#606060">Comunicación oficial</span></div>
+          </div>
+          <div class="sender-card">
+            <div class="sender-avatar" id="senderAvatar">N</div>
+            <div class="sender-meta">
+              <div><strong id="senderName">NovaTech Comunicación Oficial</strong> <span class="address" id="senderAddress">&lt;comunicacion@novatech.com.co&gt;</span></div>
+              <div class="to">para ti, <span id="readerRecipientName">cliente</span> · <span id="readerDate">ahora</span></div>
+            </div>
+            <div class="sender-date" id="senderDate">Ahora</div>
+          </div>
+          <div class="message-frame-wrap" id="emailFrameWrap">
+            <iframe id="emailPreview" title="Comunicado de NovaTech"></iframe>
+          </div>
+          <div class="generic-message" id="genericMessage" hidden>
+            <article class="generic-card" id="genericCard"></article>
+          </div>
+          <div class="reply-bar">
+            <button class="reply-button"><i data-lucide="reply" aria-hidden="true"></i><span>Responder</span></button>
+            <button class="reply-button"><i data-lucide="forward" aria-hidden="true"></i><span>Reenviar</span></button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="mail-toast" id="mailToast" role="status" aria-live="polite" hidden>
+    <div class="toast-icon"><i data-lucide="mail" aria-hidden="true"></i></div>
+    <div class="toast-copy"><strong>Nuevo correo</strong><span>NovaTech · Seguimos trabajando para ti</span></div>
+    <button class="toast-open" id="openNewMail" type="button">Abrir</button>
+  </div>
+
+
+  <script src="lucide.min.js"></script>
+  <script>
+    const messages = {
+      logistics: {
+        subject: 'Tu pedido NT-2481 está listo para despacho',
+        sender: 'Equipo de Logística',
+        address: '<logistica@novatech.com.co>',
+        date: 'Hoy, 8:18',
+        avatar: 'L',
+        kicker: 'Operación',
+        body: [
+          'Hola, [Nombre].',
+          'Tu pedido NT-2481 ya está preparado y pasará al proceso de despacho. Cuando salga de nuestras instalaciones recibirás el número de guía por este mismo canal.',
+          'Si necesitas validar la dirección de entrega o alguna condición especial, responde a este mensaje antes de las 2:00 p. m.'
+        ]
+      },
+      support: {
+        subject: 'Actualización de horarios de atención',
+        sender: 'Soporte NovaTech',
+        address: '<soporte@novatech.com.co>',
+        date: 'Ayer, 4:25 p. m.',
+        avatar: 'S',
+        kicker: 'Soporte',
+        body: [
+          'Hola, [Nombre].',
+          'A partir de esta semana, nuestra línea de soporte atenderá de lunes a viernes entre 7:00 a. m. y 6:00 p. m.',
+          'El canal de correo continuará disponible de forma permanente y cada solicitud quedará registrada con un número de caso.'
+        ]
+      },
+      billing: {
+        subject: 'Factura electrónica disponible para consulta',
+        sender: 'Facturación NovaTech',
+        address: '<facturacion@novatech.com.co>',
+        date: '26 oct 2026',
+        avatar: 'F',
+        kicker: 'Cuenta',
+        body: [
+          'Hola, [Nombre].',
+          'La factura electrónica correspondiente al período actual ya está disponible para consulta.',
+          'Si detectas alguna diferencia en los datos o necesitas una copia adicional, escribe al canal oficial de facturación.'
+        ]
+      },
+      account: {
+        subject: 'Invitación: sesión de acompañamiento',
+        sender: 'Relación con Clientes',
+        address: '<relacionclientes@novatech.com.co>',
+        date: '24 oct 2026',
+        avatar: 'R',
+        kicker: 'Acompañamiento',
+        body: [
+          'Hola, [Nombre].',
+          'Queremos acompañarte en la revisión de tus próximas operaciones y resolver las dudas que puedan surgir sobre pedidos, entregas o facturación.',
+          'Responde a este correo y coordinaremos una sesión breve con el asesor responsable de tu cuenta.'
+        ]
+      },
+      guide: {
+        subject: 'Guía rápida para administrar tu cuenta',
+        sender: 'Fakemail',
+        address: '<cuenta@fakemail.demo>',
+        date: '19 oct 2026',
+        avatar: 'F',
+        kicker: 'Cuenta',
+        body: [
+          'Hola, [Nombre].',
+          'Desde tu cuenta puedes actualizar los datos de contacto, revisar las comunicaciones recientes y confirmar el asesor asignado.',
+          'Esta guía forma parte de la demostración de Fakemail.'
+        ]
+      }
+    };
+
+    const STORAGE_KEY = 'novatech-preview-client-name';
+    const loginScreen = document.getElementById('loginScreen');
+    const mailApp = document.getElementById('mailApp');
+    const nameForm = document.getElementById('nameForm');
+    const nameInput = document.getElementById('clientName');
+    const avatarButton = document.getElementById('avatarButton');
+    const inboxView = document.getElementById('inboxView');
+    const readerView = document.getElementById('readerView');
+    const novatechMailRow = document.getElementById('novatechMailRow');
+    const inboxCount = document.getElementById('inboxCount');
+    const mailToast = document.getElementById('mailToast');
+    const emailFrameWrap = document.getElementById('emailFrameWrap');
+    const emailPreview = document.getElementById('emailPreview');
+    const genericMessage = document.getElementById('genericMessage');
+    const genericCard = document.getElementById('genericCard');
+    let clientName = '';
+    let arrivalTimer = null;
+    let toastTimer = null;
+    let audioContext = null;
+
+    function readStoredName() {
+      try { return localStorage.getItem(STORAGE_KEY) || ''; } catch (_) { return ''; }
+    }
+    function storeName(name) {
+      try { localStorage.setItem(STORAGE_KEY, name); } catch (_) {}
+    }
+    function clearStoredName() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    }
+    function initials(name) {
+      return name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0).toUpperCase()).join('');
+    }
+
+    function unlockAudio() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!audioContext) audioContext = new AudioContextClass();
+      if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+    }
+
+    function playNotification() {
+      if (!audioContext) return;
+      const playTone = (frequency, start, duration, gainValue) => {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(gainValue, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start(start);
+        oscillator.stop(start + duration);
+      };
+      if (audioContext.state === 'suspended') audioContext.resume().then(sendChime).catch(() => {});
+      else sendChime();
+
+      function sendChime() {
+        const now = audioContext.currentTime + 0.02;
+        playTone(660, now, 0.20, 0.10);
+        playTone(880, now + 0.14, 0.32, 0.08);
+      }
+    }
+
+    function setGreetingName(name) {
+      clientName = name;
+      avatarButton.textContent = initials(name) || 'N';
+      avatarButton.setAttribute('aria-label', `Cambiar nombre. Vista actual: ${name}`);
+      document.getElementById('readerRecipientName').textContent = name;
+      emailPreview.src = `Novatech_Email_Clientes.html?name=${encodeURIComponent(name)}`;
+    }
+
+    function showInbox() {
+      readerView.hidden = true;
+      inboxView.hidden = false;
+    }
+
+    function openMessage(id) {
+      const row = document.querySelector(`.mail-row[data-message="${id}"]`);
+      if (row) {
+        row.classList.remove('unread', 'is-new');
+        row.classList.add('read');
+        row.querySelector('.status-dot').setAttribute('aria-hidden', 'true');
+      }
+      inboxView.hidden = true;
+      readerView.hidden = false;
+
+      if (id === 'novatech') {
+        document.getElementById('readerSubject').textContent = 'Seguimos trabajando para ti: así cuidaremos tu servicio.';
+        document.getElementById('readerKicker').textContent = 'Comunicación oficial';
+        document.getElementById('senderAvatar').textContent = 'N';
+        document.getElementById('senderName').textContent = 'NovaTech Comunicación Oficial';
+        document.getElementById('senderAddress').textContent = '<comunicacion@novatech.com.co>';
+        document.getElementById('readerDate').textContent = 'ahora';
+        document.getElementById('senderDate').textContent = 'Ahora';
+        document.getElementById('readerTag').textContent = 'Recibidos';
+        document.getElementById('readerRecipientName').textContent = clientName;
+        emailFrameWrap.hidden = false;
+        genericMessage.hidden = true;
+        mailToast.hidden = true;
+        return;
+      }
+
+      const message = messages[id];
+      if (!message) return;
+      document.getElementById('readerSubject').textContent = message.subject;
+      document.getElementById('readerKicker').textContent = message.kicker;
+      document.getElementById('senderAvatar').textContent = message.avatar;
+      document.getElementById('senderName').textContent = message.sender;
+      document.getElementById('senderAddress').textContent = message.address;
+      document.getElementById('readerDate').textContent = message.date;
+      document.getElementById('senderDate').textContent = message.date;
+      document.getElementById('readerTag').textContent = 'Recibidos';
+      document.getElementById('readerRecipientName').textContent = clientName;
+      genericCard.innerHTML = `<h2>${escapeHtml(message.subject)}</h2>${message.body.map(paragraph => `<p>${escapeHtml(paragraph.replace('[Nombre]', clientName))}</p>`).join('')}`;
+      emailFrameWrap.hidden = true;
+      genericMessage.hidden = false;
+    }
+
+    function escapeHtml(value) {
+      const node = document.createElement('span');
+      node.textContent = value;
+      return node.innerHTML;
+    }
+
+    function addNewMail() {
+      novatechMailRow.hidden = false;
+      inboxCount.textContent = String(Number(inboxCount.textContent || 0) + 1);
+      playNotification();
+      mailToast.hidden = false;
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => { mailToast.hidden = true; }, 6500);
+    }
+
+    function startArrivalFlow() {
+      window.clearTimeout(arrivalTimer);
+      novatechMailRow.hidden = true;
+      mailToast.hidden = true;
+      showInbox();
+      arrivalTimer = window.setTimeout(addNewMail, 5000);
+    }
+
+    function enterMail(name) {
+      const cleanName = name.trim().replace(/\s+/g, ' ').slice(0, 40);
+      if (!cleanName) return;
+      storeName(cleanName);
+      setGreetingName(cleanName);
+      loginScreen.hidden = true;
+      mailApp.hidden = false;
+      startArrivalFlow();
+    }
+
+    function askForName() {
+      clearStoredName();
+      window.clearTimeout(arrivalTimer);
+      window.clearTimeout(toastTimer);
+      mailApp.hidden = true;
+      loginScreen.hidden = false;
+      nameInput.value = '';
+      requestAnimationFrame(() => nameInput.focus());
+    }
+
+    nameForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      unlockAudio();
+      enterMail(nameInput.value);
+    });
+
+    document.querySelectorAll('.mail-row').forEach(row => {
+      row.addEventListener('click', () => openMessage(row.dataset.message));
+    });
+    document.getElementById('backToInbox').addEventListener('click', showInbox);
+    document.getElementById('openNewMail').addEventListener('click', () => {
+      novatechMailRow.hidden = false;
+      openMessage('novatech');
+    });
+    avatarButton.addEventListener('click', askForName);
+
+    if (window.lucide) window.lucide.createIcons();
+
+    const savedName = readStoredName();
+    if (savedName) nameInput.value = savedName;
+  </script>
+</body>
+</html>
